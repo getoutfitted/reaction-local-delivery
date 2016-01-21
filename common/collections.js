@@ -80,10 +80,6 @@ ReactionCore.Schemas.LocalDelivery = new SimpleSchema({
     type: String,
     optional: true
   },
-  shopifyOrderNumber: {
-    type: Number,
-    optional: true
-  },
   deliveryDate: {
     type: Date,
     optional: true

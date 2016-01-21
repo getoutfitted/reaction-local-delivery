@@ -6,7 +6,7 @@ function isPickUp(order) {
 }
 
 Meteor.methods({
-  'localDeliveries/addToMyRoute': function (orderIds, userId) {
+  'localDelivery/addToMyRoute': function (orderIds, userId) {
     check(orderIds, [String]);
     check(userId, String);
     _.each(orderIds, function (orderId) {
@@ -44,7 +44,6 @@ Meteor.methods({
           + 'address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&'
           + 'key=' + token
         );
-        console.log();
         // need to replace with actual coordinates
         coordinates.longitude = -77.03238901390978;
         coordinates.latitude = 38.913188059745586;
@@ -77,48 +76,66 @@ Meteor.methods({
         }
       };
 
-      LocalDelivery.update({
-        shopifyOrderNumber: order.shopifyOrderNumber
+      Orders.update({
+        _id: order._id
       }, {
         $set: {
-          delivererId: userId,
-          deliveryStatus: 'Assigned to Driver',
-          deliveryDate: new Date(),
-          pickUp: isPickUp(order),
-          geoJson: geoJson,
-          location: address
+          'delivery.delivererId': userId,
+          'delivery.deliveryStatus': 'Assigned to Driver',
+          'delivery.deliveryDate': new Date(),
+          'delivery.pickUp': isPickUp(order),
+          'delivery.geoJson': geoJson,
+          'delivery.location': address
         }
-      }, {
-        upsert: true
       });
     });
   },
-  'localDeliver/updateLocalDelivery': function (localOrder, userId) {
-    check(localOrder, Object);
+  'localDelivery/updateLocalDelivery': function (order, userId) {
+    check(order, Object);
     check(userId, String);
-    if (localOrder.pickUp) {
-      LocalDelivery.update({
-        _id: localOrder._id
+    if (order.delivery.pickUp) {
+      Orders.update({
+        _id: order._id
       }, {
         $set: {
-          'pickUp': true,
-          'deliveryStatus': 'Picked Up',
-          'geoJson.properties.marker-symbol': 'shop',
-          'geoJson.properties.marker-color': '#E0AC4D'
+          'delivery.pickUp': true,
+          'delivery.deliveryStatus': 'Picked Up',
+          'delivery.geoJson.properties.marker-symbol': 'shop',
+          'delivery.geoJson.properties.marker-color': '#E0AC4D'
         }
       });
     } else {
-      LocalDelivery.update({
-        _id: localOrder._id
+      Orders.update({
+        _id: order._id
       }, {
         $set: {
-          'pickUp': true,
-          'deliveryStatus': 'Delivered',
-          'geoJson.properties.marker-symbol': 'shop',
-          'geoJson.properties.marker-color': '#E0AC4D'
+          'delivery.pickUp': true,
+          'delivery.deliveryStatus': 'Delivered',
+          'delivery.geoJson.properties.marker-symbol': 'shop',
+          'delivery.geoJson.properties.marker-color': '#E0AC4D'
         }
       });
-      Meteor.call('advancedFulfillment/orderDelivered', localOrder.shopifyOrderNumber, userId);
+      Meteor.call('localDelivery/orderDelivered', order._id, userId);
     }
+  },
+  'localDelivery/orderDelivered': function (orderId, userId) {
+    check(orderId, Number);
+    check(userId, String);
+    let history = {
+      event: 'orderDelivered',
+      userId: userId,
+      updatedAt: new Date()
+    };
+
+    ReactionCore.Collections.Orders.update({
+      _id: orderId
+    }, {
+      $set: {
+        'advancedFulfillment.delivered': true
+      },
+      $addToSet: {
+        history: history
+      }
+    });
   }
 });

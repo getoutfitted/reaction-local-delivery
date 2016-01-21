@@ -7,11 +7,11 @@ Template.myRoute.onRendered(function () {
     name: 'reaction-local-delivery'
   });
 
-  let myDeliveries = LocalDelivery.find({
-    delivererId: Meteor.userId()
+  let orders = Orders.find({
+    'delivery.delivererId': Meteor.userId()
   }).fetch();
-  let geoJson = _.map(myDeliveries, function (delivery) {
-    return delivery.geoJson;
+  let geoJson = _.map(orders, function (order) {
+    return order.delivery.geoJson;
   });
   this.autorun(function () {
     if (Mapbox.loaded()) {
@@ -26,18 +26,18 @@ Template.myRoute.onRendered(function () {
 Template.myRoute.helpers({
   myDeliveries: function () {
     const userId = Meteor.userId();
-    return LocalDelivery.find({
-      delivererId: userId
+    return Orders.find({
+      'delivery.delivererId': userId
     });
   },
   isPickUp: function () {
-    if (this.pickUp) {
+    if (this.delivery.pickUp) {
       return 'Pick Up';
     }
     return 'Delivery';
   },
   deliverButtonColor: function () {
-    if (this.pickUp) {
+    if (this.delivery.pickUp) {
       return 'warning';
     }
     return 'info';
@@ -50,8 +50,8 @@ Template.myRoute.helpers({
 Template.myRoute.events({
   'click .deliveryUpdate': function (event) {
     event.preventDefault();
-    const localOrder = this;
+    const order = this;
     const userId = Meteor.userId();
-    Meteor.call('localDeliver/updateLocalDelivery', localOrder, userId);
+    Meteor.call('localDelivery/updateLocalDelivery', order, userId);
   }
 });

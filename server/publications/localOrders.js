@@ -38,21 +38,22 @@ Meteor.publish('localOrders', function () {
         'billing.address.fullName': 1,
         'advancedFulfillment.localDelivery': 1,
         'advancedFulfillment.delivered': 1,
-        'shopifyOrderId': 1
+        'shopifyOrderId': 1,
+        'delivery': 1
       }
     });
   }
   return this.ready();
 });
 
-Meteor.publish('localDeliveryOrders', function () {
-  return ReactionCore.Collections.LocalDelivery.find();
-});
+// Meteor.publish('localDeliveryOrders', function () {
+//   return ReactionCore.Collections.LocalDelivery.find();
+// });
 
 Meteor.publish('myLocalDeliveryOrders', function (userId) {
   check(userId, String);
-  return ReactionCore.Collections.LocalDelivery.find({
-    delivererId: userId
+  return ReactionCore.Collections.Orders.find({
+    'delivery.delivererId': userId
   });
 });
 

@@ -56,36 +56,27 @@ Template.dashboardLocalDelivery.helpers({
   numberOfOrders: function () {
     return Session.get('deliveryOrders').length;
   },
-  deliveryStatus: function (order) {
-    let shopNum = ReactionCore.Collections.LocalDelivery.findOne({
-      shopifyOrderNumber: order.shopifyOrderNumber
-    });
-    if (shopNum) {
-      return shopNum.deliveryStatus;
-    } else if (order.advancedFulfillment.delivered) {
-      return 'Ready for Pick Up';
+  deliveryStatus: function () {
+    if (this.delivery) {
+      return this.delivery.deliveryStatus;
     }
     return 'Ready for Delivery';
   },
   actionableDeliveryStatus: function () {
-    let shopNum = ReactionCore.Collections.LocalDelivery.findOne({
-      shopifyOrderNumber: this.shopifyOrderNumber
-    });
-    if (!shopNum) {
-      return true;
-    }
-    let actionalbeStatus = ['Ready for Delivery', 'Delivered'];
-    return _.contains(actionalbeStatus, shopNum.deliveryStatus);
+    return true;
+    // let deliveryStatus = this.delivery.deliveryStatus;
+    // let actionalbeStatus = ['Ready for Delivery', 'Delivered'];
+    // return _.contains(actionalbeStatus, deliveryStatus);
   },
   inTransitLocalDelivery: function () {
-    return LocalDelivery.find({
-      deliveryStatus: {
+    return Orders.find({
+      'delivery.deliveryStatus': {
         $in: ['Assigned to Driver', 'Picked Up']
       }
     });
   },
   type: function () {
-    if (this.pickUp) {
+    if (this.delivery.pickUp) {
       return '<span class="label label-warning">Pickup</span';
     }
     return '<span class="label label-info">Delivery</span';
@@ -114,7 +105,7 @@ Template.dashboardLocalDelivery.events({
   'click .addDeliveriesToMyQueue': function (event) {
     event.preventDefault();
     const orderIds = Session.get('deliveryOrders');
-    Meteor.call('localDeliveries/addToMyRoute', orderIds, Meteor.userId());
+    Meteor.call('localDelivery/addToMyRoute', orderIds, Meteor.userId());
     Session.set('deliveryOrders', []);
   }
 });
