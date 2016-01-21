@@ -79,6 +79,29 @@ Meteor.methods({
   'localDeliver/updateLocalDelivery': function (localOrder, userId) {
     check(localOrder, Object);
     check(userId, String);
-
+    if (localOrder.pickUp) {
+      LocalDelivery.update({
+        _id: localOrder._id
+      }, {
+        $set: {
+          'pickUp': true,
+          'deliveryStatus': 'Picked Up',
+          'geoJson.properties.marker-symbol': 'shop',
+          'geoJson.properties.marker-color': '#E0AC4D'
+        }
+      });
+    } else {
+      LocalDelivery.update({
+        _id: localOrder._id
+      }, {
+        $set: {
+          'pickUp': true,
+          'deliveryStatus': 'Delivered',
+          'geoJson.properties.marker-symbol': 'shop',
+          'geoJson.properties.marker-color': '#E0AC4D'
+        }
+      });
+      Meteor.call('advancedFulfillment/localShippingIniated', localOrder.shopifyOrderNumber, userId);
+    }
   }
 });
