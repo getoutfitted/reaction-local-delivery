@@ -1,0 +1,33 @@
+<template name='myRoute'>
+  <div class='container'>
+    <div style='width: 100%; height: 75vh;' id='map' class='map'>Map</div>
+    <div class='table-responsive'>
+      <table class='table table-hover'>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Order #</th>
+            <th>Location</th>
+            <th>Type</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each myDeliveries}}
+            <tr class='deliveryItem' data-id='{{_id}}' data-shopify-id='{{shopifyOrderNumber}}'>
+              <td>
+                <a class='btn btn-{{deliverButtonColor}} deliveryUpdate' data-id='{{_id}}' data-shopify-id='{{shopifyOrderNumber}}'>
+                  {{isPickUp}}
+                </a>
+              </td>
+              <td>{{shopifyOrderNumber}}</td>
+              <td>{{location}}</td>
+              <td>{{isPickUp}}</td>
+              <td>{{deliveryStatus}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
