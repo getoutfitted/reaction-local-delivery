@@ -41,6 +41,9 @@ Template.myRoute.helpers({
       return 'warning';
     }
     return 'info';
+  },
+  notPickedUp: function () {
+    return this.deliveryStatus !== 'Picked Up';
   }
 });
 

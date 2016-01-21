@@ -1,4 +1,4 @@
-ReactionCore.Collections.LocalDelivery = LocalDelivery = this.LocalDelivery = new Mongo.Collection('LocalDelivery');
+// ReactionCore.Collections.LocalDelivery = LocalDelivery = this.LocalDelivery = new Mongo.Collection('LocalDelivery');
 
 ReactionCore.Schemas.LocalDeliveryPackageConfig = new SimpleSchema([
   ReactionCore.Schemas.PackageConfig, {
@@ -106,4 +106,11 @@ ReactionCore.Schemas.LocalDelivery = new SimpleSchema({
   }
 });
 
-ReactionCore.Collections.LocalDelivery.attachSchema(ReactionCore.Schemas.LocalDelivery);
+ReactionCore.Schemas.LocalDeliveryOnOrder = new SimpleSchema([ReactionCore.Schemas.Orders, {
+  delivery: {
+    type: ReactionCore.Schemas.LocalDelivery,
+    optional: true
+  }
+}]);
+
+ReactionCore.Collections.Orders.attachSchema(ReactionCore.Schemas.LocalDeliveryOnOrder);

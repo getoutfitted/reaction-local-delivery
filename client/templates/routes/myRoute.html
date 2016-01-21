@@ -21,9 +21,13 @@
           {{#each myDeliveries}}
             <tr class='deliveryItem' data-id='{{_id}}' data-shopify-id='{{shopifyOrderNumber}}'>
               <td>
+                {{#if notPickedUp}}
                 <a class='btn btn-{{deliverButtonColor}} deliveryUpdate' data-id='{{_id}}' data-shopify-id='{{shopifyOrderNumber}}'>
                   {{isPickUp}}
                 </a>
+                {{else}}
+                Return to Warehouse
+                {{/if}}
               </td>
               <td>{{shopifyOrderNumber}}</td>
               <td>{{location}}</td>

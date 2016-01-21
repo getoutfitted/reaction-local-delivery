@@ -12,6 +12,14 @@ Meteor.methods({
     _.each(orderIds, function (orderId) {
       let coordinates = {};
       const order = Orders.findOne(orderId);
+      if (order.advancedFulfillment.workflow.status === 'orderReadyToShip') {
+        Meteor.call(
+          'advancedFulfillment/updateOrderWorkflow',
+          order._id,
+          userId,
+          order.advancedFulfillment.workflow.status
+        );
+      }
       const shopifyOrder = ShopifyOrders.findOne({
         shopifyOrderNumber: order.shopifyOrderNumber
       });
@@ -34,8 +42,8 @@ Meteor.methods({
         }
         let result = HTTP.get('https://maps.googleapis.com/maps/api/geocode/json?'
           + 'address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&'
-          + 'key=' + token;
-);
+          + 'key=' + token
+        );
         console.log();
         // need to replace with actual coordinates
         coordinates.longitude = -77.03238901390978;
@@ -110,7 +118,7 @@ Meteor.methods({
           'geoJson.properties.marker-color': '#E0AC4D'
         }
       });
-      Meteor.call('advancedFulfillment/localShippingIniated', localOrder.shopifyOrderNumber, userId);
+      Meteor.call('advancedFulfillment/orderDelivered', localOrder.shopifyOrderNumber, userId);
     }
   }
 });

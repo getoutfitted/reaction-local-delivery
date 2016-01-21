@@ -18,6 +18,7 @@ Template.dashboardLocalDelivery.onCreated(function () {
   Session.setDefault('deliveryOrders', []);
 });
 
+
 Template.dashboardLocalDelivery.helpers({
   orders: function () {
     return ReactionCore.Collections.Orders.find();
@@ -55,14 +56,42 @@ Template.dashboardLocalDelivery.helpers({
   numberOfOrders: function () {
     return Session.get('deliveryOrders').length;
   },
-  deliveryStatus: function (shopifyOrderNumber) {
+  deliveryStatus: function (order) {
     let shopNum = ReactionCore.Collections.LocalDelivery.findOne({
-      shopifyOrderNumber: shopifyOrderNumber
+      shopifyOrderNumber: order.shopifyOrderNumber
     });
     if (shopNum) {
       return shopNum.deliveryStatus;
+    } else if (order.advancedFulfillment.delivered) {
+      return 'Ready for Pick Up';
     }
     return 'Ready for Delivery';
+  },
+  actionableDeliveryStatus: function () {
+    let shopNum = ReactionCore.Collections.LocalDelivery.findOne({
+      shopifyOrderNumber: this.shopifyOrderNumber
+    });
+    if (!shopNum) {
+      return true;
+    }
+    let actionalbeStatus = ['Ready for Delivery', 'Delivered'];
+    return _.contains(actionalbeStatus, shopNum.deliveryStatus);
+  },
+  inTransitLocalDelivery: function () {
+    return LocalDelivery.find({
+      deliveryStatus: {
+        $in: ['Assigned to Driver', 'Picked Up']
+      }
+    });
+  },
+  type: function () {
+    if (this.pickUp) {
+      return '<span class="label label-warning">Pickup</span';
+    }
+    return '<span class="label label-info">Delivery</span';
+  },
+  driverName: function (userId) {
+    return Meteor.users.findOne(userId).username;
   }
 });
 
