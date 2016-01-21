@@ -37,6 +37,7 @@ Meteor.publish('localOrders', function () {
         'shipping.address.fullName': 1,
         'billing.address.fullName': 1,
         'advancedFulfillment.localDelivery': 1,
+        'advancedFulfillment.delivered': 1,
         'shopifyOrderId': 1
       }
     });

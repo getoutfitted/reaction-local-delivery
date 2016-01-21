@@ -6,15 +6,12 @@ const timeTable = {
   lastWeek: '[Last] dddd',
   sameElse: 'MMM DD, YYYY'
 };
+
 function isPickUp(order) {
-  return order.advancedFulfillment.delivered;
-  // const today = moment(new Date());
-  // const firstUseDay = moment(order.startTime);
-  // const lastUseDay = moment(order.endTime);
-  // if (today.isAfter(firstUseDay) && today.isBefore(lastUseDay)) {
-  //   return true;
-  // }
-  // return false;
+  if (order.advancedFulfillment.delivered) {
+    return true;
+  }
+  return false;
 }
 
 Template.dashboardLocalDelivery.onCreated(function () {

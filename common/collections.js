@@ -79,10 +79,6 @@ ReactionCore.Schemas.LocalDelivery = new SimpleSchema({
     type: Number,
     optional: true
   },
-  deliveryGroup: {
-    type: String,
-    optional: true
-  },
   deliveryDate: {
     type: Date,
     optional: true

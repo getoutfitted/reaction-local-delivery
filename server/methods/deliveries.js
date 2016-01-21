@@ -1,8 +1,5 @@
 function isPickUp(order) {
-  const today = moment(new Date());
-  const firstUseDay = moment(order.startTime);
-  const lastUseDay = moment(order.endTime);
-  if (today.isAfter(firstUseDay) && today.isBefore(lastUseDay)) {
+  if (order.advancedFulfillment.delivered) {
     return true;
   }
   return false;
@@ -12,7 +9,6 @@ Meteor.methods({
   'localDeliveries/addToMyRoute': function (orderIds, userId) {
     check(orderIds, [String]);
     check(userId, String);
-    const groupId = Random.id();
     _.each(orderIds, function (orderId) {
       let coordinates = {};
       const order = Orders.findOne(orderId);
