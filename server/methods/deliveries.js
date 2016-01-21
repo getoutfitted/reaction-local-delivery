@@ -25,9 +25,15 @@ Meteor.methods({
         coordinates.longitude = shopifyAddress.longitude;
         coordinates.latitude = shopifyAddress.latitude;
       } else {
-        let token; //Needs to be mapbox key
+        const settings = ReactionCore.Collections.Packages.findOne({
+          name: 'reaction-local-delivery'
+        }).settings;
+        let token;
+        if (settings) {
+          token = settings.mapbox.key;
+        }
         let result = HTTP.get('https://api.mapbox.com/geocoding/v5/mapbox.places/200+queen+street.json?proximity=-66.1,45.3&access_token=' + token);
-        console.log('we shouldnt be here');
+        console.log();
         // need to replace with actual coordinates
         coordinates.longitude = -77.03238901390978;
         coordinates.latitude = 38.913188059745586;
