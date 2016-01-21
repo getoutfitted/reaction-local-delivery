@@ -2,7 +2,6 @@ Router.route('dashboard/local-delivery', {
   controller: ShopAdminController,
   path: '/dashboard/local-delivery',
   template: 'dashboardLocalDelivery',
-  name: 'dashboardLocalDelivery',
   subscriptions: function () {
     this.subscribe('localDeliveryOrders');
     return this.subscribe('localOrders');

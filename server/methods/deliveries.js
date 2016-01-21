@@ -30,9 +30,12 @@ Meteor.methods({
         }).settings;
         let token;
         if (settings) {
-          token = settings.mapbox.key;
+          token = settings.google.key;
         }
-        let result = HTTP.get('https://api.mapbox.com/geocoding/v5/mapbox.places/200+queen+street.json?proximity=-66.1,45.3&access_token=' + token);
+        let result = HTTP.get('https://maps.googleapis.com/maps/api/geocode/json?'
+          + 'address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&'
+          + 'key=' + token;
+);
         console.log();
         // need to replace with actual coordinates
         coordinates.longitude = -77.03238901390978;

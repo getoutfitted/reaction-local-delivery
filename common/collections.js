@@ -11,6 +11,11 @@ ReactionCore.Schemas.LocalDeliveryPackageConfig = new SimpleSchema([
       type: String,
       label: 'The MapBox id from element',
       optional: true
+    },
+    'settings.googlemap.key': {
+      type: String,
+      label: 'Google Maps Api Key for GeoCoding',
+      optional: true
     }
   }
 ]);
