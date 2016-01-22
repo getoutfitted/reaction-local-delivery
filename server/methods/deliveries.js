@@ -24,6 +24,11 @@ Meteor.methods({
         shopifyOrderNumber: order.shopifyOrderNumber
       });
       const orderAddress = order.shipping[0].address;
+      let address = orderAddress.address1 + ' '
+        + orderAddress.address2 + ' '
+        + orderAddress.city + ' '
+        + orderAddress.region + ', '
+        + orderAddress.postal;
       const shopifyAddress = shopifyOrder.information.shipping_address;
       if (orderAddress.address1 === shopifyAddress.address1
         && orderAddress.address2 === shopifyAddress.address2
@@ -32,29 +37,34 @@ Meteor.methods({
         && orderAddress.region === shopifyAddress.province_code) {
         coordinates.longitude = shopifyAddress.longitude;
         coordinates.latitude = shopifyAddress.latitude;
+        console.log('why are we here?', shopifyAddress);
+        console.log('order', address);
       } else {
+        console.log('we are in the else!')
         const settings = ReactionCore.Collections.Packages.findOne({
           name: 'reaction-local-delivery'
         }).settings;
         let token;
         if (settings) {
-          token = settings.google.key;
+          token = settings.googlemap.key;
         }
+        let apiReadyAddress = '';
+        let addressArray = address.split(' ');
+        _.each(addressArray, function (w) {
+          if (addressArray.indexOf(w) === 0) {
+            apiReadyAddress  = apiReadyAddress + w;
+          } else {
+            apiReadyAddress  = apiReadyAddress + '+' + w;
+          }
+        });
+
         let result = HTTP.get('https://maps.googleapis.com/maps/api/geocode/json?'
-          + 'address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&'
-          + 'key=' + token
+          + 'address=' + apiReadyAddress
+          + '&key=' + token
         );
-        // need to replace with actual coordinates
-        coordinates.longitude = -77.03238901390978;
-        coordinates.latitude = 38.913188059745586;
+        coordinates.longitude = result.data.results[0].geometry.location.lng;
+        coordinates.latitude = result.data.results[0].geometry.location.lat;
       }
-
-      let address = orderAddress.address1 + ' '
-        + orderAddress.address2 + ' '
-        + orderAddress.city + ' '
-        + orderAddress.region + ', '
-        + orderAddress.postal;
-
       let color = '#7FBEDE';
       let symbol = 'clothing-store';
       if (isPickUp(order)) {

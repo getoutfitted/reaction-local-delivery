@@ -53,7 +53,7 @@ Template.dashboardLocalDelivery.helpers({
       + delivery.address2
       + '<br>'
       + delivery.city + ', '
-      + delivery.region
+      + delivery.region + ' '
       + delivery.postal;
   },
   deliveryType: function (order) {

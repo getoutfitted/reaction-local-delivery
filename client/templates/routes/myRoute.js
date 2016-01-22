@@ -17,7 +17,7 @@ Template.myRoute.onRendered(function () {
     if (Mapbox.loaded()) {
       L.mapbox.accessToken = info.settings.mapbox.key;
       let map = L.mapbox.map('map', info.settings.mapbox.id)
-      .setView(Session.get('mapCenter'), 10)
+      .setView(Session.get('mapCenter'), 3)
       .featureLayer.setGeoJSON(geoJson);
     }
   });
