@@ -16,6 +16,7 @@ function isPickUp(order) {
 
 Template.dashboardLocalDelivery.onCreated(function () {
   Session.setDefault('deliveryOrders', []);
+  Session.setDefault('selectedDriver', Meteor.userId());
 });
 
 
@@ -104,6 +105,19 @@ Template.dashboardLocalDelivery.helpers({
       userId = history.userId;
     }
     return Meteor.users.findOne(userId).username;
+  },
+  allUsers: function () {
+    return Meteor.users.find({
+      username: {$exists: true}
+    });
+  },
+  selectedDriver: function () {
+    let userId = Session.get('selectedDriver');
+    if (userId === Meteor.userId()) {
+      return 'my';
+    }
+    let user = Meteor.users.findOne(userId);
+    return user.username + "'s";
   }
 });
 
@@ -126,7 +140,12 @@ Template.dashboardLocalDelivery.events({
   'click .addDeliveriesToMyQueue': function (event) {
     event.preventDefault();
     const orderIds = Session.get('deliveryOrders');
-    Meteor.call('localDelivery/addToMyRoute', orderIds, Meteor.userId());
+    Meteor.call('localDelivery/addToMyRoute', orderIds, Session.get('selectedDriver'));
     Session.set('deliveryOrders', []);
+  },
+  'change .driver-select': function (event) {
+    event.preventDefault();
+    let selectedDriver = event.currentTarget.selectedOptions[0].value;
+    Session.set('selectedDriver', selectedDriver);
   }
 });
