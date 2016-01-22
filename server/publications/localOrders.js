@@ -3,8 +3,8 @@ Meteor.publish('localOrders', function () {
   const permissions = [
     'admin',
     'owner',
-    'dashboard/advanced-fulfillment',
-    'reaction-advanced-fulfillment'
+    'dashboard/local-delivery',
+    'reaction-local-delivery'
   ];
   if (Roles.userIsInRole(this.userId, permissions, ReactionCore.getShopId())) {
     return ReactionCore.Collections.Orders.find({
@@ -57,3 +57,20 @@ Meteor.publish('myLocalDeliveryOrders', function (userId) {
   });
 });
 
+Meteor.publish('getoutfittedEmployees', function () {
+  shopId = ReactionCore.getShopId();
+  const permissions = [
+    'admin',
+    'owner',
+    'dashboard/local-delivery',
+    'reaction-local-delivery'
+  ];
+  if (Roles.userIsInRole(this.userId, permissions, ReactionCore.getShopId())) {
+    // :TODO in the future limit users to users with access to this package
+    return  Meteor.users.find({}, {
+      fields: {
+        username: 1
+      }
+    });
+  }
+})

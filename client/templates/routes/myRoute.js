@@ -42,8 +42,9 @@ Template.myRoute.helpers({
     }
     return 'info';
   },
-  notPickedUp: function () {
-    return this.deliveryStatus !== 'Picked Up';
+  actionable: function () {
+    const actionableStatuses = 'Assigned to Driver';
+    return this.delivery.deliveryStatus === actionableStatuses;
   }
 });
 
@@ -53,5 +54,14 @@ Template.myRoute.events({
     const order = this;
     const userId = Meteor.userId();
     Meteor.call('localDelivery/updateLocalDelivery', order, userId);
+  },
+  'click .route-completed': function (event) {
+    event.preventDefault();
+    let orders = Orders.find().fetch();
+    let orderIds = _.map(orders, function (order) {
+      return order._id;
+    });
+    Meteor.call('localDelivery/updateMyDeliveries', orderIds, Meteor.userId());
+
   }
 });

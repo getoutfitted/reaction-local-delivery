@@ -20,8 +20,31 @@ Template.dashboardLocalDelivery.onCreated(function () {
 
 
 Template.dashboardLocalDelivery.helpers({
-  orders: function () {
-    return ReactionCore.Collections.Orders.find();
+  deliveryOrders: function () {
+    let orders =  ReactionCore.Collections.Orders.find({
+      'advancedFulfillment.delivered': {
+        $ne: true
+      },
+      'delivery.deliveryStatus': {
+        $nin: ['Assigned to Driver', 'Picked Up']
+      }
+    }, { sort: {
+      'advancedFulfillment.arriveBy': 1,
+      'shopifyOrderNumber': 1
+    }});
+    return orders;
+  },
+  pickUpOrders: function () {
+    let orders =  ReactionCore.Collections.Orders.find({
+      'advancedFulfillment.delivered': true,
+      'delivery.deliveryStatus': {
+        $nin: ['Assigned to Driver', 'Picked Up']
+      }
+    }, { sort: {
+      'advancedFulfillment.shipReturnBy': 1,
+      'shopifyOrderNumber': 1
+    }});
+    return orders;
   },
   deliveryAddress: function (order) {
     const delivery = order.shipping[0].address;
@@ -40,9 +63,9 @@ Template.dashboardLocalDelivery.helpers({
   },
   whichDate: function (order) {
     if (isPickUp(order)) {
-      return moment(order.endTime).calendar(null, timeTable);
+      return moment(order.advancedFulfillment.shipReturnBy).calendar(null, timeTable);
     }
-    return moment(order.startTime).calendar(null, timeTable);
+    return moment(order.advancedFulfillment.arriveBy).calendar(null, timeTable);
   },
   isPickUp: function (order) {
     return isPickUp(order);
@@ -62,12 +85,6 @@ Template.dashboardLocalDelivery.helpers({
     }
     return 'Ready for Delivery';
   },
-  actionableDeliveryStatus: function () {
-    return true;
-    // let deliveryStatus = this.delivery.deliveryStatus;
-    // let actionalbeStatus = ['Ready for Delivery', 'Delivered'];
-    // return _.contains(actionalbeStatus, deliveryStatus);
-  },
   inTransitLocalDelivery: function () {
     return Orders.find({
       'delivery.deliveryStatus': {
@@ -82,6 +99,10 @@ Template.dashboardLocalDelivery.helpers({
     return '<span class="label label-info">Delivery</span';
   },
   driverName: function (userId) {
+    if (!userId) {
+      let history = _.findWhere(this.history, {event: 'orderPickedUp'});
+      userId = history.userId;
+    }
     return Meteor.users.findOne(userId).username;
   }
 });

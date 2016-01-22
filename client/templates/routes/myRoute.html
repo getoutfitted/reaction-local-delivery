@@ -21,12 +21,12 @@
           {{#each myDeliveries}}
             <tr class='deliveryItem' data-id='{{_id}}' data-shopify-id='{{shopifyOrderNumber}}'>
               <td>
-                {{#if notPickedUp}}
+                {{#if actionable}}
                 <a class='btn btn-{{deliverButtonColor}} deliveryUpdate' data-id='{{_id}}' data-shopify-id='{{shopifyOrderNumber}}'>
                   {{isPickUp}}
                 </a>
                 {{else}}
-                Return to Warehouse
+
                 {{/if}}
               </td>
               <td>{{shopifyOrderNumber}}</td>
@@ -37,6 +37,12 @@
           {{/each}}
         </tbody>
       </table>
+    </div>
+    <br>
+    <br>
+    <br>
+    <div class='row'>
+      <a class='btn btn-lg btn-block btn-success route-completed' href="#">Route Completed</a>
     </div>
   </div>
 </template>

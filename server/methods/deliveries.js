@@ -76,6 +76,17 @@ Meteor.methods({
         }
       };
 
+      let event = 'Assigned to Driver for Delivery';
+      if (order.advancedFulfillment.delivered) {
+        event = 'Assigned to Driver for PickUp';
+      }
+
+      const history = {
+        event: event,
+        userId: userId,
+        updatedAt: new Date()
+      };
+
       Orders.update({
         _id: order._id
       }, {
@@ -86,6 +97,9 @@ Meteor.methods({
           'delivery.pickUp': isPickUp(order),
           'delivery.geoJson': geoJson,
           'delivery.location': address
+        },
+        $addToSet: {
+          history: history
         }
       });
     });
@@ -102,6 +116,13 @@ Meteor.methods({
           'delivery.deliveryStatus': 'Picked Up',
           'delivery.geoJson.properties.marker-symbol': 'shop',
           'delivery.geoJson.properties.marker-color': '#E0AC4D'
+        },
+        $addToSet: {
+          history: {
+            event: 'orderPickedUp',
+            userId: userId,
+            updatedAt: new Date()
+          }
         }
       });
     } else {
@@ -119,7 +140,7 @@ Meteor.methods({
     }
   },
   'localDelivery/orderDelivered': function (orderId, userId) {
-    check(orderId, Number);
+    check(orderId, String);
     check(userId, String);
     let history = {
       event: 'orderDelivered',
@@ -135,6 +156,42 @@ Meteor.methods({
       },
       $addToSet: {
         history: history
+      }
+    });
+  },
+  'localDelivery/updateMyDeliveries': function (orderIds, userId) {
+    check(orderIds, [String]);
+    check(userId, String);
+    _.each(orderIds, function (orderId) {
+      let order = Orders.findOne(orderId);
+      if (order.delivery.deliveryStatus === 'Assigned to Driver') {
+        let failedMessage = 'Delivery Attempt Failed';
+        if (order.advancedFulfillment.delivered) {
+          failedMessage = 'PickUp Attempt Failed';
+        }
+        Orders.update({
+          _id: orderId
+        }, {
+          $set: {
+            'delivery.delivererId': null,
+            'delivery.deliveryStatus': failedMessage
+          },
+          $addToSet: {
+            history: {
+              event: failedMessage,
+              userId: userId,
+              updatedAt: new Date()
+            }
+          }
+        });
+      } else {
+        Orders.update({
+          _id: orderId
+        }, {
+          $set: {
+            'delivery.delivererId': null
+          }
+        });
       }
     });
   }
