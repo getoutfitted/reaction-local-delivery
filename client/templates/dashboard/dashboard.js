@@ -118,6 +118,17 @@ Template.dashboardLocalDelivery.helpers({
     }
     let user = Meteor.users.findOne(userId);
     return user.username + "'s";
+  },
+  contact: function (order) {
+    return order.shipping[0].address.fullName;
+  },
+  phone: function (order) {
+    let ship = order.shipping[0].address.phone;
+    let bill = order.billing[0].address.phone;
+    if (ship === bill) {
+      return '# ' + ship;
+    }
+    return 'Shipping # ' + ship + ' | Billing # ' + bill;
   }
 });
 

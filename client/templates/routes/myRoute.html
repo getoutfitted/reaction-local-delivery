@@ -16,6 +16,7 @@
             <th></th>
             <th>Order #</th>
             <th>Location</th>
+            <th>Contact Info</th>
             <th>Type</th>
             <th>Status</th>
           </tr>
@@ -34,6 +35,10 @@
               </td>
               <td>{{shopifyOrderNumber}}</td>
               <td>{{delivery.location}}</td>
+              <td>
+                  {{contact this}}<br>
+                  {{phone this}}
+                </td>
               <td>{{isPickUp}}</td>
               <td>{{delivery.deliveryStatus}}</td>
             </tr>

@@ -17,7 +17,7 @@ Template.myRoute.onRendered(function () {
     if (Mapbox.loaded()) {
       L.mapbox.accessToken = info.settings.mapbox.key;
       let map = L.mapbox.map('map', info.settings.mapbox.id)
-      .setView(Session.get('mapCenter'), 3)
+      .setView(Session.get('mapCenter'), 10)
       .featureLayer.setGeoJSON(geoJson);
     }
   });
@@ -45,6 +45,17 @@ Template.myRoute.helpers({
   actionable: function () {
     const actionableStatuses = 'Assigned to Driver';
     return this.delivery.deliveryStatus === actionableStatuses;
+  },
+  contact: function (order) {
+    return order.shipping[0].address.fullName;
+  },
+  phone: function (order) {
+    let ship = order.shipping[0].address.phone;
+    let bill = order.billing[0].address.phone;
+    if (ship === bill) {
+      return '# ' + ship;
+    }
+    return 'Shipping # ' + ship + ' | Billing # ' + bill;
   }
 });
 

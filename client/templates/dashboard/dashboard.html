@@ -31,6 +31,7 @@
               <th>Order Number</th>
               <th>Delivery/PickUp</th>
               <th>Location</th>
+              <th>Contact Info</th>
               <th>Date for Delivery/Pickup</th>
               <th>Status</th>
             </tr>
@@ -48,6 +49,10 @@
                 <td><a href="{{pathFor 'orderDetails' this._id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
                 <td>{{{deliveryType this}}}</td>
                 <td>{{{deliveryAddress this}}}</td>
+                <td>
+                  {{contact this}}<br>
+                  {{phone this}}
+                </td>
                 <td>{{whichDate this}}</td>
                 <td>{{deliveryStatus}}</td>
               </tr>
@@ -67,6 +72,7 @@
               <th>Order Number</th>
               <th>Delivery/PickUp</th>
               <th>Location</th>
+              <th>Contact Info</th>
               <th>Date for Delivery/Pickup</th>
               <th>Status</th>
             </tr>
@@ -84,6 +90,10 @@
                 <td><a href="{{pathFor 'orderDetails' this._id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
                 <td>{{{deliveryType this}}}</td>
                 <td>{{{deliveryAddress this}}}</td>
+                <td>
+                  {{contact this}}<br>
+                  {{phone this}}
+                </td>
                 <td>{{whichDate this}}</td>
                 <td>{{deliveryStatus}}</td>
               </tr>
@@ -104,6 +114,7 @@
               <th>Order Number</th>
               <th>Delivery/PickUp</th>
               <th>Location</th>
+              <th>Contact</th>
               <th>Status</th>
               <th>Driver</th>
             </tr>
@@ -114,6 +125,10 @@
                 <td>{{shopifyOrderNumber}}</td>
                 <td>{{{type}}}</td>
                 <td>{{delivery.location}}</td>
+                <td>
+                  {{contact this}}<br>
+                  {{phone this}}
+                </td>
                 <td>{{delivery.deliveryStatus}}</td>
                 <td>{{driverName this.delivery.delivererId}}</td>
               </tr>

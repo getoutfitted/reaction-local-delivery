@@ -37,10 +37,7 @@ Meteor.methods({
         && orderAddress.region === shopifyAddress.province_code) {
         coordinates.longitude = shopifyAddress.longitude;
         coordinates.latitude = shopifyAddress.latitude;
-        console.log('why are we here?', shopifyAddress);
-        console.log('order', address);
       } else {
-        console.log('we are in the else!')
         const settings = ReactionCore.Collections.Packages.findOne({
           name: 'reaction-local-delivery'
         }).settings;
