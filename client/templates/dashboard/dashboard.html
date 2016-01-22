@@ -47,13 +47,13 @@
                   {{/if}}
                 </td>
                 <td><a href="{{pathFor 'orderDetails' this._id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
-                <td>{{{deliveryType this}}}</td>
-                <td>{{{deliveryAddress this}}}</td>
+                <td>{{{deliveryType}}}</td>
+                <td>{{{deliveryAddress}}}</td>
                 <td>
-                  {{contact this}}<br>
-                  {{phone this}}
+                  {{contact}}<br>
+                  {{phone}}
                 </td>
-                <td>{{whichDate this}}</td>
+                <td>{{whichDate }}</td>
                 <td>{{deliveryStatus}}</td>
               </tr>
 
@@ -88,13 +88,13 @@
                   {{/if}}
                 </td>
                 <td><a href="{{pathFor 'orderDetails' this._id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
-                <td>{{{deliveryType this}}}</td>
-                <td>{{{deliveryAddress this}}}</td>
+                <td>{{{deliveryType }}}</td>
+                <td>{{{deliveryAddress }}}</td>
                 <td>
-                  {{contact this}}<br>
-                  {{phone this}}
+                  {{contact}}<br>
+                  {{phone}}
                 </td>
-                <td>{{whichDate this}}</td>
+                <td>{{whichDate }}</td>
                 <td>{{deliveryStatus}}</td>
               </tr>
 
@@ -126,8 +126,8 @@
                 <td>{{{type}}}</td>
                 <td>{{delivery.location}}</td>
                 <td>
-                  {{contact this}}<br>
-                  {{phone this}}
+                  {{contact}}<br>
+                  {{phone}}
                 </td>
                 <td>{{delivery.deliveryStatus}}</td>
                 <td>{{driverName this.delivery.delivererId}}</td>

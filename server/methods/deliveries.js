@@ -29,6 +29,7 @@ Meteor.methods({
         + orderAddress.city + ' '
         + orderAddress.region + ', '
         + orderAddress.postal;
+
       const shopifyAddress = shopifyOrder.information.shipping_address;
       if (orderAddress.address1 === shopifyAddress.address1
         && orderAddress.address2 === shopifyAddress.address2
@@ -45,16 +46,7 @@ Meteor.methods({
         if (settings) {
           token = settings.googlemap.key;
         }
-        let apiReadyAddress = '';
-        let addressArray = address.split(' ');
-        _.each(addressArray, function (w) {
-          if (addressArray.indexOf(w) === 0) {
-            apiReadyAddress  = apiReadyAddress + w;
-          } else {
-            apiReadyAddress  = apiReadyAddress + '+' + w;
-          }
-        });
-
+        let apiReadyAddress = address.replace(/ /g, '+');
         let result = HTTP.get('https://maps.googleapis.com/maps/api/geocode/json?'
           + 'address=' + apiReadyAddress
           + '&key=' + token
