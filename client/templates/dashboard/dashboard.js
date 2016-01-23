@@ -47,6 +47,18 @@ Template.dashboardLocalDelivery.helpers({
     }});
     return orders;
   },
+  inTransitLocalDelivery: function () {
+    return Orders.find({
+      'delivery.deliveryStatus': {
+        $in: ['Assigned to Driver', 'Picked Up']
+      }
+    });
+  },
+  allUsers: function () {
+    return Meteor.users.find({
+      username: {$exists: true}
+    });
+  },
   deliveryAddress: function () {
     const delivery = this.shipping[0].address;
     return delivery.address1
@@ -68,9 +80,6 @@ Template.dashboardLocalDelivery.helpers({
     }
     return moment(this.advancedFulfillment.arriveBy).calendar(null, timeTable);
   },
-  isPickUp: function () {
-    return isPickUp(this);
-  },
   deliverySelected: function () {
     return Session.get('deliveryOrders').indexOf(this._id) !== -1;
   },
@@ -86,30 +95,12 @@ Template.dashboardLocalDelivery.helpers({
     }
     return 'Ready for Delivery';
   },
-  inTransitLocalDelivery: function () {
-    return Orders.find({
-      'delivery.deliveryStatus': {
-        $in: ['Assigned to Driver', 'Picked Up']
-      }
-    });
-  },
-  type: function () {
-    if (this.delivery.pickUp) {
-      return '<span class="label label-warning">Pickup</span';
-    }
-    return '<span class="label label-info">Delivery</span';
-  },
   driverName: function (userId) {
     if (!userId) {
       let history = _.findWhere(this.history, {event: 'orderPickedUp'});
       userId = history.userId;
     }
     return Meteor.users.findOne(userId).username;
-  },
-  allUsers: function () {
-    return Meteor.users.find({
-      username: {$exists: true}
-    });
   },
   selectedDriver: function () {
     let userId = Session.get('selectedDriver');

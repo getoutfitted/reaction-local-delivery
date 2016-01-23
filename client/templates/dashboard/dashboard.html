@@ -53,10 +53,9 @@
                   {{contact}}<br>
                   {{phone}}
                 </td>
-                <td>{{whichDate }}</td>
+                <td>{{whichDate}}</td>
                 <td>{{deliveryStatus}}</td>
               </tr>
-
             {{/each}}
           </tbody>
         </table>
@@ -88,7 +87,7 @@
                   {{/if}}
                 </td>
                 <td><a href="{{pathFor 'orderDetails' this._id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
-                <td>{{{deliveryType }}}</td>
+                <td>{{{deliveryType}}}</td>
                 <td>{{{deliveryAddress }}}</td>
                 <td>
                   {{contact}}<br>
@@ -122,8 +121,8 @@
           <tbody>
             {{#each inTransitLocalDelivery}}
               <tr>
-                <td>{{shopifyOrderNumber}}</td>
-                <td>{{{type}}}</td>
+                <td><a href="{{pathFor 'orderDetails' this._id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
+                <td>{{{deliveryType}}}</td>
                 <td>{{delivery.location}}</td>
                 <td>
                   {{contact}}<br>
