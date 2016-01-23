@@ -7,10 +7,9 @@ Template.myRoute.onRendered(function () {
     name: 'reaction-local-delivery'
   });
 
-  let orders = Orders.find({
+  let geoJson = Orders.find({
     'delivery.delivererId': Meteor.userId()
-  }).fetch();
-  let geoJson = _.map(orders, function (order) {
+  }).map(function (order) {
     return order.delivery.geoJson;
   });
   this.autorun(function () {
