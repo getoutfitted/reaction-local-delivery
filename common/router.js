@@ -6,7 +6,7 @@ localDeliveryController = ShopController.extend({
     if (!localDelivery.enabled) {
       this.render('notFound');
     } else {
-      if (!ReactionCore.hasPermission(['admin', 'owner', 'dashboard/advanced-fulfillment', 'reaction-advanced-fulfillment'])) {
+      if (!ReactionCore.hasPermission(['admin', 'owner', 'dashboard/local-delivery', 'reaction-local-delivery'])) {
         this.render("layoutHeader", {
           to: "layoutHeader"
         });
