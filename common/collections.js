@@ -1,4 +1,4 @@
-ReactionCore.Collections.LocalDelivery = LocalDelivery = this.LocalDelivery = new Mongo.Collection('LocalDelivery');
+// ReactionCore.Collections.LocalDelivery = LocalDelivery = this.LocalDelivery = new Mongo.Collection('LocalDelivery');
 
 ReactionCore.Schemas.LocalDeliveryPackageConfig = new SimpleSchema([
   ReactionCore.Schemas.PackageConfig, {
@@ -10,6 +10,11 @@ ReactionCore.Schemas.LocalDeliveryPackageConfig = new SimpleSchema([
     'settings.mapbox.id': {
       type: String,
       label: 'The MapBox id from element',
+      optional: true
+    },
+    'settings.googlemap.key': {
+      type: String,
+      label: 'Google Maps Api Key for GeoCoding',
       optional: true
     }
   }
@@ -75,14 +80,6 @@ ReactionCore.Schemas.LocalDelivery = new SimpleSchema({
     type: String,
     optional: true
   },
-  shopifyOrderNumber: {
-    type: Number,
-    optional: true
-  },
-  deliveryGroup: {
-    type: String,
-    optional: true
-  },
   deliveryDate: {
     type: Date,
     optional: true
@@ -105,4 +102,11 @@ ReactionCore.Schemas.LocalDelivery = new SimpleSchema({
   }
 });
 
-ReactionCore.Collections.LocalDelivery.attachSchema(ReactionCore.Schemas.LocalDelivery);
+ReactionCore.Schemas.LocalDeliveryOnOrder = new SimpleSchema([ReactionCore.Schemas.Orders, {
+  delivery: {
+    type: ReactionCore.Schemas.LocalDelivery,
+    optional: true
+  }
+}]);
+
+ReactionCore.Collections.Orders.attachSchema(ReactionCore.Schemas.LocalDeliveryOnOrder);

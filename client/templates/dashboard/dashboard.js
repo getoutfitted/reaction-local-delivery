@@ -6,24 +6,46 @@ const timeTable = {
   lastWeek: '[Last] dddd',
   sameElse: 'MMM DD, YYYY'
 };
+
 function isPickUp(order) {
-  return order.advancedFulfillment.delivered;
-  // const today = moment(new Date());
-  // const firstUseDay = moment(order.startTime);
-  // const lastUseDay = moment(order.endTime);
-  // if (today.isAfter(firstUseDay) && today.isBefore(lastUseDay)) {
-  //   return true;
-  // }
-  // return false;
+  if (order.advancedFulfillment.delivered) {
+    return true;
+  }
+  return false;
 }
 
 Template.dashboardLocalDelivery.onCreated(function () {
   Session.setDefault('deliveryOrders', []);
+  Session.setDefault('selectedDriver', Meteor.userId());
 });
 
+
 Template.dashboardLocalDelivery.helpers({
-  orders: function () {
-    return ReactionCore.Collections.Orders.find();
+  deliveryOrders: function () {
+    let orders =  ReactionCore.Collections.Orders.find({
+      'advancedFulfillment.delivered': {
+        $ne: true
+      },
+      'delivery.deliveryStatus': {
+        $nin: ['Assigned to Driver', 'Picked Up']
+      }
+    }, { sort: {
+      'advancedFulfillment.arriveBy': 1,
+      'shopifyOrderNumber': 1
+    }});
+    return orders;
+  },
+  pickUpOrders: function () {
+    let orders =  ReactionCore.Collections.Orders.find({
+      'advancedFulfillment.delivered': true,
+      'delivery.deliveryStatus': {
+        $nin: ['Assigned to Driver', 'Picked Up']
+      }
+    }, { sort: {
+      'advancedFulfillment.shipReturnBy': 1,
+      'shopifyOrderNumber': 1
+    }});
+    return orders;
   },
   deliveryAddress: function (order) {
     const delivery = order.shipping[0].address;
@@ -31,7 +53,7 @@ Template.dashboardLocalDelivery.helpers({
       + delivery.address2
       + '<br>'
       + delivery.city + ', '
-      + delivery.region
+      + delivery.region + ' '
       + delivery.postal;
   },
   deliveryType: function (order) {
@@ -42,9 +64,9 @@ Template.dashboardLocalDelivery.helpers({
   },
   whichDate: function (order) {
     if (isPickUp(order)) {
-      return moment(order.endTime).calendar(null, timeTable);
+      return moment(order.advancedFulfillment.shipReturnBy).calendar(null, timeTable);
     }
-    return moment(order.startTime).calendar(null, timeTable);
+    return moment(order.advancedFulfillment.arriveBy).calendar(null, timeTable);
   },
   isPickUp: function (order) {
     return isPickUp(order);
@@ -58,14 +80,55 @@ Template.dashboardLocalDelivery.helpers({
   numberOfOrders: function () {
     return Session.get('deliveryOrders').length;
   },
-  deliveryStatus: function (shopifyOrderNumber) {
-    let shopNum = ReactionCore.Collections.LocalDelivery.findOne({
-      shopifyOrderNumber: shopifyOrderNumber
-    });
-    if (shopNum) {
-      return shopNum.deliveryStatus;
+  deliveryStatus: function () {
+    if (this.delivery) {
+      return this.delivery.deliveryStatus;
     }
     return 'Ready for Delivery';
+  },
+  inTransitLocalDelivery: function () {
+    return Orders.find({
+      'delivery.deliveryStatus': {
+        $in: ['Assigned to Driver', 'Picked Up']
+      }
+    });
+  },
+  type: function () {
+    if (this.delivery.pickUp) {
+      return '<span class="label label-warning">Pickup</span';
+    }
+    return '<span class="label label-info">Delivery</span';
+  },
+  driverName: function (userId) {
+    if (!userId) {
+      let history = _.findWhere(this.history, {event: 'orderPickedUp'});
+      userId = history.userId;
+    }
+    return Meteor.users.findOne(userId).username;
+  },
+  allUsers: function () {
+    return Meteor.users.find({
+      username: {$exists: true}
+    });
+  },
+  selectedDriver: function () {
+    let userId = Session.get('selectedDriver');
+    if (userId === Meteor.userId()) {
+      return 'my';
+    }
+    let user = Meteor.users.findOne(userId);
+    return user.username + "'s";
+  },
+  contact: function (order) {
+    return order.shipping[0].address.fullName;
+  },
+  phone: function (order) {
+    let ship = order.shipping[0].address.phone;
+    let bill = order.billing[0].address.phone;
+    if (ship === bill) {
+      return '# ' + ship;
+    }
+    return 'Shipping # ' + ship + ' | Billing # ' + bill;
   }
 });
 
@@ -88,7 +151,12 @@ Template.dashboardLocalDelivery.events({
   'click .addDeliveriesToMyQueue': function (event) {
     event.preventDefault();
     const orderIds = Session.get('deliveryOrders');
-    Meteor.call('localDeliveries/addToMyRoute', orderIds, Meteor.userId());
+    Meteor.call('localDelivery/addToMyRoute', orderIds, Session.get('selectedDriver'));
     Session.set('deliveryOrders', []);
+  },
+  'change .driver-select': function (event) {
+    event.preventDefault();
+    let selectedDriver = event.currentTarget.selectedOptions[0].value;
+    Session.set('selectedDriver', selectedDriver);
   }
 });

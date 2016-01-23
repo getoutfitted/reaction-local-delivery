@@ -7,11 +7,11 @@ Template.myRoute.onRendered(function () {
     name: 'reaction-local-delivery'
   });
 
-  let myDeliveries = LocalDelivery.find({
-    delivererId: Meteor.userId()
+  let orders = Orders.find({
+    'delivery.delivererId': Meteor.userId()
   }).fetch();
-  let geoJson = _.map(myDeliveries, function (delivery) {
-    return delivery.geoJson;
+  let geoJson = _.map(orders, function (order) {
+    return order.delivery.geoJson;
   });
   this.autorun(function () {
     if (Mapbox.loaded()) {
@@ -26,29 +26,53 @@ Template.myRoute.onRendered(function () {
 Template.myRoute.helpers({
   myDeliveries: function () {
     const userId = Meteor.userId();
-    return LocalDelivery.find({
-      delivererId: userId
+    return Orders.find({
+      'delivery.delivererId': userId
     });
   },
   isPickUp: function () {
-    if (this.pickUp) {
+    if (this.delivery.pickUp) {
       return 'Pick Up';
     }
     return 'Delivery';
   },
   deliverButtonColor: function () {
-    if (this.pickUp) {
+    if (this.delivery.pickUp) {
       return 'warning';
     }
     return 'info';
+  },
+  actionable: function () {
+    const actionableStatuses = 'Assigned to Driver';
+    return this.delivery.deliveryStatus === actionableStatuses;
+  },
+  contact: function (order) {
+    return order.shipping[0].address.fullName;
+  },
+  phone: function (order) {
+    let ship = order.shipping[0].address.phone;
+    let bill = order.billing[0].address.phone;
+    if (ship === bill) {
+      return '# ' + ship;
+    }
+    return 'Shipping # ' + ship + ' | Billing # ' + bill;
   }
 });
 
 Template.myRoute.events({
   'click .deliveryUpdate': function (event) {
     event.preventDefault();
-    const localOrder = this;
+    const order = this;
     const userId = Meteor.userId();
-    Meteor.call('localDeliver/updateLocalDelivery', localOrder, userId);
+    Meteor.call('localDelivery/updateLocalDelivery', order, userId);
+  },
+  'click .route-completed': function (event) {
+    event.preventDefault();
+    let orders = Orders.find().fetch();
+    let orderIds = _.map(orders, function (order) {
+      return order._id;
+    });
+    Meteor.call('localDelivery/updateMyDeliveries', orderIds, Meteor.userId());
+
   }
 });

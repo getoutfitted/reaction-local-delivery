@@ -1,25 +1,34 @@
 function isPickUp(order) {
-  const today = moment(new Date());
-  const firstUseDay = moment(order.startTime);
-  const lastUseDay = moment(order.endTime);
-  if (today.isAfter(firstUseDay) && today.isBefore(lastUseDay)) {
+  if (order.advancedFulfillment.delivered) {
     return true;
   }
   return false;
 }
 
 Meteor.methods({
-  'localDeliveries/addToMyRoute': function (orderIds, userId) {
+  'localDelivery/addToMyRoute': function (orderIds, userId) {
     check(orderIds, [String]);
     check(userId, String);
-    const groupId = Random.id();
     _.each(orderIds, function (orderId) {
       let coordinates = {};
       const order = Orders.findOne(orderId);
+      if (order.advancedFulfillment.workflow.status === 'orderReadyToShip') {
+        Meteor.call(
+          'advancedFulfillment/updateOrderWorkflow',
+          order._id,
+          userId,
+          order.advancedFulfillment.workflow.status
+        );
+      }
       const shopifyOrder = ShopifyOrders.findOne({
         shopifyOrderNumber: order.shopifyOrderNumber
       });
       const orderAddress = order.shipping[0].address;
+      let address = orderAddress.address1 + ' '
+        + orderAddress.address2 + ' '
+        + orderAddress.city + ' '
+        + orderAddress.region + ', '
+        + orderAddress.postal;
       const shopifyAddress = shopifyOrder.information.shipping_address;
       if (orderAddress.address1 === shopifyAddress.address1
         && orderAddress.address2 === shopifyAddress.address2
@@ -29,20 +38,30 @@ Meteor.methods({
         coordinates.longitude = shopifyAddress.longitude;
         coordinates.latitude = shopifyAddress.latitude;
       } else {
-        let token; //Needs to be mapbox key
-        let result = HTTP.get('https://api.mapbox.com/geocoding/v5/mapbox.places/200+queen+street.json?proximity=-66.1,45.3&access_token=' + token);
-        console.log('we shouldnt be here');
-        // need to replace with actual coordinates
-        coordinates.longitude = -77.03238901390978;
-        coordinates.latitude = 38.913188059745586;
+        const settings = ReactionCore.Collections.Packages.findOne({
+          name: 'reaction-local-delivery'
+        }).settings;
+        let token;
+        if (settings) {
+          token = settings.googlemap.key;
+        }
+        let apiReadyAddress = '';
+        let addressArray = address.split(' ');
+        _.each(addressArray, function (w) {
+          if (addressArray.indexOf(w) === 0) {
+            apiReadyAddress  = apiReadyAddress + w;
+          } else {
+            apiReadyAddress  = apiReadyAddress + '+' + w;
+          }
+        });
+
+        let result = HTTP.get('https://maps.googleapis.com/maps/api/geocode/json?'
+          + 'address=' + apiReadyAddress
+          + '&key=' + token
+        );
+        coordinates.longitude = result.data.results[0].geometry.location.lng;
+        coordinates.latitude = result.data.results[0].geometry.location.lat;
       }
-
-      let address = orderAddress.address1 + ' '
-        + orderAddress.address2 + ' '
-        + orderAddress.city + ' '
-        + orderAddress.region + ', '
-        + orderAddress.postal;
-
       let color = '#7FBEDE';
       let symbol = 'clothing-store';
       if (isPickUp(order)) {
@@ -64,25 +83,123 @@ Meteor.methods({
         }
       };
 
-      LocalDelivery.update({
-        shopifyOrderNumber: order.shopifyOrderNumber
+      let event = 'Assigned to Driver for Delivery';
+      if (order.advancedFulfillment.delivered) {
+        event = 'Assigned to Driver for PickUp';
+      }
+
+      const history = {
+        event: event,
+        userId: userId,
+        updatedAt: new Date()
+      };
+
+      Orders.update({
+        _id: order._id
       }, {
         $set: {
-          delivererId: userId,
-          deliveryStatus: 'Assigned to Driver',
-          deliveryDate: new Date(),
-          pickUp: isPickUp(order),
-          geoJson: geoJson,
-          location: address
+          'delivery.delivererId': userId,
+          'delivery.deliveryStatus': 'Assigned to Driver',
+          'delivery.deliveryDate': new Date(),
+          'delivery.pickUp': isPickUp(order),
+          'delivery.geoJson': geoJson,
+          'delivery.location': address
+        },
+        $addToSet: {
+          history: history
         }
-      }, {
-        upsert: true
       });
     });
   },
-  'localDeliver/updateLocalDelivery': function (localOrder, userId) {
-    check(localOrder, Object);
+  'localDelivery/updateLocalDelivery': function (order, userId) {
+    check(order, Object);
     check(userId, String);
+    if (order.delivery.pickUp) {
+      Orders.update({
+        _id: order._id
+      }, {
+        $set: {
+          'delivery.pickUp': true,
+          'delivery.deliveryStatus': 'Picked Up',
+          'delivery.geoJson.properties.marker-symbol': 'shop',
+          'delivery.geoJson.properties.marker-color': '#E0AC4D'
+        },
+        $addToSet: {
+          history: {
+            event: 'orderPickedUp',
+            userId: userId,
+            updatedAt: new Date()
+          }
+        }
+      });
+    } else {
+      Orders.update({
+        _id: order._id
+      }, {
+        $set: {
+          'delivery.pickUp': true,
+          'delivery.deliveryStatus': 'Delivered',
+          'delivery.geoJson.properties.marker-symbol': 'shop',
+          'delivery.geoJson.properties.marker-color': '#E0AC4D'
+        }
+      });
+      Meteor.call('localDelivery/orderDelivered', order._id, userId);
+    }
+  },
+  'localDelivery/orderDelivered': function (orderId, userId) {
+    check(orderId, String);
+    check(userId, String);
+    let history = {
+      event: 'orderDelivered',
+      userId: userId,
+      updatedAt: new Date()
+    };
 
+    ReactionCore.Collections.Orders.update({
+      _id: orderId
+    }, {
+      $set: {
+        'advancedFulfillment.delivered': true
+      },
+      $addToSet: {
+        history: history
+      }
+    });
+  },
+  'localDelivery/updateMyDeliveries': function (orderIds, userId) {
+    check(orderIds, [String]);
+    check(userId, String);
+    _.each(orderIds, function (orderId) {
+      let order = Orders.findOne(orderId);
+      if (order.delivery.deliveryStatus === 'Assigned to Driver') {
+        let failedMessage = 'Delivery Attempt Failed';
+        if (order.advancedFulfillment.delivered) {
+          failedMessage = 'PickUp Attempt Failed';
+        }
+        Orders.update({
+          _id: orderId
+        }, {
+          $set: {
+            'delivery.delivererId': null,
+            'delivery.deliveryStatus': failedMessage
+          },
+          $addToSet: {
+            history: {
+              event: failedMessage,
+              userId: userId,
+              updatedAt: new Date()
+            }
+          }
+        });
+      } else {
+        Orders.update({
+          _id: orderId
+        }, {
+          $set: {
+            'delivery.delivererId': null
+          }
+        });
+      }
+    });
   }
 });
