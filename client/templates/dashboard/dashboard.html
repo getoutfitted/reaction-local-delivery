@@ -46,7 +46,7 @@
                     <input type="checkbox" name="order_{{_id}}" id="checkboxOrder_{{_id}}" class="hide" data-id={{_id}}><label for="order_{{_id}}" style="cursor: pointer;"><i class="fa fa-square-o fa-lg"></i></label>
                   {{/if}}
                 </td>
-                <td><a href="{{pathFor 'orderDetails' this._id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
+                <td><a href="{{pathFor 'orderDetails' _id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
                 <td>{{{deliveryType}}}</td>
                 <td>{{{deliveryAddress}}}</td>
                 <td>
@@ -86,7 +86,7 @@
                     <input type="checkbox" name="order_{{_id}}" id="checkboxOrder_{{_id}}" class="hide" data-id={{_id}}><label for="order_{{_id}}" style="cursor: pointer;"><i class="fa fa-square-o fa-lg"></i></label>
                   {{/if}}
                 </td>
-                <td><a href="{{pathFor 'orderDetails' this._id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
+                <td><a href="{{pathFor 'orderDetails' _id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
                 <td>{{{deliveryType}}}</td>
                 <td>{{{deliveryAddress }}}</td>
                 <td>
@@ -121,7 +121,7 @@
           <tbody>
             {{#each inTransitLocalDelivery}}
               <tr>
-                <td><a href="{{pathFor 'orderDetails' this._id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
+                <td><a href="{{pathFor 'orderDetails' _id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
                 <td>{{{deliveryType}}}</td>
                 <td>{{delivery.location}}</td>
                 <td>
