@@ -9,6 +9,9 @@ Meteor.methods({
   'localDelivery/addToMyRoute': function (orderIds, userId) {
     check(orderIds, [String]);
     check(userId, String);
+    if (!ReactionCore.hasPermission(LocalDelivery.permissions)) {
+      throw new Meteor.Error(403, 'Access Denied');
+    }
     _.each(orderIds, function (orderId) {
       let coordinates = {};
       const order = Orders.findOne(orderId);
@@ -106,6 +109,9 @@ Meteor.methods({
   'localDelivery/updateLocalDelivery': function (order, userId) {
     check(order, Object);
     check(userId, String);
+    if (!ReactionCore.hasPermission(LocalDelivery.permissions)) {
+      throw new Meteor.Error(403, 'Access Denied');
+    }
     if (order.delivery.pickUp) {
       Orders.update({
         _id: order._id
@@ -161,6 +167,9 @@ Meteor.methods({
   'localDelivery/updateMyDeliveries': function (orderIds, userId) {
     check(orderIds, [String]);
     check(userId, String);
+    if (!ReactionCore.hasPermission(LocalDelivery.permissions)) {
+      throw new Meteor.Error(403, 'Access Denied');
+    }
     _.each(orderIds, function (orderId) {
       let order = Orders.findOne(orderId);
       if (order.delivery.deliveryStatus === 'Assigned to Driver') {
