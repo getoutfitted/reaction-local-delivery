@@ -7,10 +7,9 @@ Template.myRoute.onRendered(function () {
     name: 'reaction-local-delivery'
   });
 
-  let orders = Orders.find({
+  let geoJson = Orders.find({
     'delivery.delivererId': Meteor.userId()
-  }).fetch();
-  let geoJson = _.map(orders, function (order) {
+  }).map(function (order) {
     return order.delivery.geoJson;
   });
   this.autorun(function () {
@@ -46,12 +45,12 @@ Template.myRoute.helpers({
     const actionableStatuses = 'Assigned to Driver';
     return this.delivery.deliveryStatus === actionableStatuses;
   },
-  contact: function (order) {
-    return order.shipping[0].address.fullName;
+  contact: function () {
+    return this.shipping[0].address.fullName;
   },
-  phone: function (order) {
-    let ship = order.shipping[0].address.phone;
-    let bill = order.billing[0].address.phone;
+  phone: function () {
+    let ship = this.shipping[0].address.phone;
+    let bill = this.billing[0].address.phone;
     if (ship === bill) {
       return '# ' + ship;
     }

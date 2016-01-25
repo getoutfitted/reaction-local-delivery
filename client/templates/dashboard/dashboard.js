@@ -47,8 +47,20 @@ Template.dashboardLocalDelivery.helpers({
     }});
     return orders;
   },
-  deliveryAddress: function (order) {
-    const delivery = order.shipping[0].address;
+  inTransitLocalDelivery: function () {
+    return Orders.find({
+      'delivery.deliveryStatus': {
+        $in: ['Assigned to Driver', 'Picked Up']
+      }
+    });
+  },
+  allUsers: function () {
+    return Meteor.users.find({
+      username: {$exists: true}
+    });
+  },
+  deliveryAddress: function () {
+    const delivery = this.shipping[0].address;
     return delivery.address1
       + delivery.address2
       + '<br>'
@@ -56,20 +68,17 @@ Template.dashboardLocalDelivery.helpers({
       + delivery.region + ' '
       + delivery.postal;
   },
-  deliveryType: function (order) {
-    if (isPickUp(order)) {
+  deliveryType: function () {
+    if (isPickUp(this)) {
       return '<span class="label label-warning">Pickup</span';
     }
     return '<span class="label label-info">Delivery</span';
   },
-  whichDate: function (order) {
-    if (isPickUp(order)) {
-      return moment(order.advancedFulfillment.shipReturnBy).calendar(null, timeTable);
+  whichDate: function () {
+    if (isPickUp(this)) {
+      return moment(this.advancedFulfillment.shipReturnBy).calendar(null, timeTable);
     }
-    return moment(order.advancedFulfillment.arriveBy).calendar(null, timeTable);
-  },
-  isPickUp: function (order) {
-    return isPickUp(order);
+    return moment(this.advancedFulfillment.arriveBy).calendar(null, timeTable);
   },
   deliverySelected: function () {
     return Session.get('deliveryOrders').indexOf(this._id) !== -1;
@@ -86,30 +95,12 @@ Template.dashboardLocalDelivery.helpers({
     }
     return 'Ready for Delivery';
   },
-  inTransitLocalDelivery: function () {
-    return Orders.find({
-      'delivery.deliveryStatus': {
-        $in: ['Assigned to Driver', 'Picked Up']
-      }
-    });
-  },
-  type: function () {
-    if (this.delivery.pickUp) {
-      return '<span class="label label-warning">Pickup</span';
-    }
-    return '<span class="label label-info">Delivery</span';
-  },
   driverName: function (userId) {
     if (!userId) {
       let history = _.findWhere(this.history, {event: 'orderPickedUp'});
       userId = history.userId;
     }
     return Meteor.users.findOne(userId).username;
-  },
-  allUsers: function () {
-    return Meteor.users.find({
-      username: {$exists: true}
-    });
   },
   selectedDriver: function () {
     let userId = Session.get('selectedDriver');
@@ -119,12 +110,12 @@ Template.dashboardLocalDelivery.helpers({
     let user = Meteor.users.findOne(userId);
     return user.username + "'s";
   },
-  contact: function (order) {
-    return order.shipping[0].address.fullName;
+  contact: function () {
+    return this.shipping[0].address.fullName;
   },
-  phone: function (order) {
-    let ship = order.shipping[0].address.phone;
-    let bill = order.billing[0].address.phone;
+  phone: function () {
+    let ship = this.shipping[0].address.phone;
+    let bill = this.billing[0].address.phone;
     if (ship === bill) {
       return '# ' + ship;
     }

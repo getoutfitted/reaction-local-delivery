@@ -32,7 +32,7 @@
               <th>Delivery/PickUp</th>
               <th>Location</th>
               <th>Contact Info</th>
-              <th>Date for Delivery/Pickup</th>
+              <th>Date for Delivery</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -46,17 +46,16 @@
                     <input type="checkbox" name="order_{{_id}}" id="checkboxOrder_{{_id}}" class="hide" data-id={{_id}}><label for="order_{{_id}}" style="cursor: pointer;"><i class="fa fa-square-o fa-lg"></i></label>
                   {{/if}}
                 </td>
-                <td><a href="{{pathFor 'orderDetails' this._id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
-                <td>{{{deliveryType this}}}</td>
-                <td>{{{deliveryAddress this}}}</td>
+                <td><a href="{{pathFor 'orderDetails' _id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
+                <td>{{{deliveryType}}}</td>
+                <td>{{{deliveryAddress}}}</td>
                 <td>
-                  {{contact this}}<br>
-                  {{phone this}}
+                  {{contact}}<br>
+                  {{phone}}
                 </td>
-                <td>{{whichDate this}}</td>
+                <td>{{whichDate}}</td>
                 <td>{{deliveryStatus}}</td>
               </tr>
-
             {{/each}}
           </tbody>
         </table>
@@ -73,7 +72,7 @@
               <th>Delivery/PickUp</th>
               <th>Location</th>
               <th>Contact Info</th>
-              <th>Date for Delivery/Pickup</th>
+              <th>Date for Pickup</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -87,14 +86,14 @@
                     <input type="checkbox" name="order_{{_id}}" id="checkboxOrder_{{_id}}" class="hide" data-id={{_id}}><label for="order_{{_id}}" style="cursor: pointer;"><i class="fa fa-square-o fa-lg"></i></label>
                   {{/if}}
                 </td>
-                <td><a href="{{pathFor 'orderDetails' this._id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
-                <td>{{{deliveryType this}}}</td>
-                <td>{{{deliveryAddress this}}}</td>
+                <td><a href="{{pathFor 'orderDetails' _id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
+                <td>{{{deliveryType}}}</td>
+                <td>{{{deliveryAddress }}}</td>
                 <td>
-                  {{contact this}}<br>
-                  {{phone this}}
+                  {{contact}}<br>
+                  {{phone}}
                 </td>
-                <td>{{whichDate this}}</td>
+                <td>{{whichDate }}</td>
                 <td>{{deliveryStatus}}</td>
               </tr>
 
@@ -122,12 +121,12 @@
           <tbody>
             {{#each inTransitLocalDelivery}}
               <tr>
-                <td>{{shopifyOrderNumber}}</td>
-                <td>{{{type}}}</td>
+                <td><a href="{{pathFor 'orderDetails' _id}}"><strong>{{shopifyOrderNumber}}</strong></a></td>
+                <td>{{{deliveryType}}}</td>
                 <td>{{delivery.location}}</td>
                 <td>
-                  {{contact this}}<br>
-                  {{phone this}}
+                  {{contact}}<br>
+                  {{phone}}
                 </td>
                 <td>{{delivery.deliveryStatus}}</td>
                 <td>{{driverName this.delivery.delivererId}}</td>

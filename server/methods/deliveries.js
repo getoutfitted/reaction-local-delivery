@@ -9,6 +9,9 @@ Meteor.methods({
   'localDelivery/addToMyRoute': function (orderIds, userId) {
     check(orderIds, [String]);
     check(userId, String);
+    if (!ReactionCore.hasPermission(LocalDelivery.permissions)) {
+      throw new Meteor.Error(403, 'Access Denied');
+    }
     _.each(orderIds, function (orderId) {
       let coordinates = {};
       const order = Orders.findOne(orderId);
@@ -29,6 +32,7 @@ Meteor.methods({
         + orderAddress.city + ' '
         + orderAddress.region + ', '
         + orderAddress.postal;
+
       const shopifyAddress = shopifyOrder.information.shipping_address;
       if (orderAddress.address1 === shopifyAddress.address1
         && orderAddress.address2 === shopifyAddress.address2
@@ -45,16 +49,7 @@ Meteor.methods({
         if (settings) {
           token = settings.googlemap.key;
         }
-        let apiReadyAddress = '';
-        let addressArray = address.split(' ');
-        _.each(addressArray, function (w) {
-          if (addressArray.indexOf(w) === 0) {
-            apiReadyAddress  = apiReadyAddress + w;
-          } else {
-            apiReadyAddress  = apiReadyAddress + '+' + w;
-          }
-        });
-
+        let apiReadyAddress = address.replace(/ /g, '+');
         let result = HTTP.get('https://maps.googleapis.com/maps/api/geocode/json?'
           + 'address=' + apiReadyAddress
           + '&key=' + token
@@ -114,6 +109,9 @@ Meteor.methods({
   'localDelivery/updateLocalDelivery': function (order, userId) {
     check(order, Object);
     check(userId, String);
+    if (!ReactionCore.hasPermission(LocalDelivery.permissions)) {
+      throw new Meteor.Error(403, 'Access Denied');
+    }
     if (order.delivery.pickUp) {
       Orders.update({
         _id: order._id
@@ -169,6 +167,9 @@ Meteor.methods({
   'localDelivery/updateMyDeliveries': function (orderIds, userId) {
     check(orderIds, [String]);
     check(userId, String);
+    if (!ReactionCore.hasPermission(LocalDelivery.permissions)) {
+      throw new Meteor.Error(403, 'Access Denied');
+    }
     _.each(orderIds, function (orderId) {
       let order = Orders.findOne(orderId);
       if (order.delivery.deliveryStatus === 'Assigned to Driver') {

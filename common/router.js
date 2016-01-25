@@ -1,12 +1,12 @@
 localDeliveryController = ShopController.extend({
   onBeforeAction: function () {
-    const advancedFulfillment = ReactionCore.Collections.Packages.findOne({
-      name: 'reaction-advanced-fulfillment'
+    const localDelivery = ReactionCore.Collections.Packages.findOne({
+      name: 'reaction-local-delivery'
     });
-    if (!advancedFulfillment.enabled) {
+    if (!localDelivery.enabled) {
       this.render('notFound');
     } else {
-      if (!ReactionCore.hasPermission(['admin', 'owner', 'dashboard/advanced-fulfillment', 'reaction-advanced-fulfillment'])) {
+      if (!ReactionCore.hasPermission(['admin', 'owner', 'dashboard/local-delivery', 'reaction-local-delivery'])) {
         this.render("layoutHeader", {
           to: "layoutHeader"
         });
