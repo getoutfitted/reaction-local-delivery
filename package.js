@@ -1,7 +1,7 @@
 Package.describe({
   name: 'getoutfitted:reaction-local-delivery',
   version: '0.1.0',
-  summary: 'Test Local Deliveries Package'
+  summary: 'Mapping and transit information for local deliveries. '
 });
 
 Package.onUse(function (api) {
