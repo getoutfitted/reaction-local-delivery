@@ -1,6 +1,6 @@
 Package.describe({
   name: 'getoutfitted:reaction-local-delivery',
-  version: '0.1.0',
+  version: '0.2.0',
   summary: 'Mapping and transit information for local deliveries. '
 });
 
@@ -17,7 +17,7 @@ Package.onUse(function (api) {
   api.use('momentjs:twix@0.7.2');
   api.use('standard-minifiers');
   api.use('dburles:factory@0.3.10');
-  api.use('getoutfitted:reaction-advanced-fulfillment@0.6.0');
+  api.use('getoutfitted:reaction-advanced-fulfillment@0.7.0');
   api.use('underscorestring:underscore.string@3.2.2');
   api.use('pauloborges:mapbox@2.2.3_2');
 
