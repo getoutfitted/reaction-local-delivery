@@ -24,20 +24,12 @@ localDeliveryController = ShopController.extend({
 Router.route('dashboard/local-delivery', {
   controller: localDeliveryController,
   path: '/dashboard/local-delivery',
-  template: 'dashboardLocalDelivery',
-  subscriptions: function () {
-    this.subscribe('getoutfittedEmployees');
-    this.subscribe('localDeliveryOrders');
-    return this.subscribe('localOrders');
-  }
+  template: 'dashboardLocalDelivery'
 });
 
 Router.route('dashboard/my-route', {
   controller: localDeliveryController,
   template: 'myRoute',
-  name: 'myRoute',
-  subscriptions: function () {
-    return this.subscribe('myLocalDeliveryOrders', Meteor.userId());
-  }
+  name: 'myRoute'
 });
 
