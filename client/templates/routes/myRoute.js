@@ -1,6 +1,11 @@
 Meteor.startup(function () {
   Mapbox.load();
 });
+
+Template.myRoute.onCreated(function () {
+  this.subscribe('myLocalDeliveryOrders', Meteor.userId());
+});
+
 Template.myRoute.onRendered(function () {
   Session.setDefault('mapCenter', [39.6286407, -106.0475974]);
   let info = ReactionCore.Collections.Packages.findOne({

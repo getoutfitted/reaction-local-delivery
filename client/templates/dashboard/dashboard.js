@@ -15,6 +15,9 @@ function isPickUp(order) {
 }
 
 Template.dashboardLocalDelivery.onCreated(function () {
+  this.subscribe('getoutfittedEmployees');
+  this.subscribe('localDeliveryOrders');
+  this.subscribe('localOrders');
   Session.setDefault('deliveryOrders', []);
   Session.setDefault('selectedDriver', Meteor.userId());
 });
